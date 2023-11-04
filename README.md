@@ -11,6 +11,6 @@ In order to get the app running you have to install some libraries
 
 From terminal install :
 - pip install pyserial
-- pip install tkinter
+- pip install tk
 
 With these two libraries the application should work.

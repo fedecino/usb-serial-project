@@ -2,73 +2,55 @@ import serial
 import tkinter as tk
 from tkinter import filedialog
 
-def send_file():
-    # Ottieni i parametri della porta seriale dalla GUI
-    port = port_entry.get()
-    
-    baudrate_str = baudrate_entry.get()
-    if not baudrate_str:
-        result_label.config(text="Inserire un valore di Baud Rate valido")
-        return
-    
-    try:
-        baudrate = int(baudrate_str)
-    except ValueError:
-        result_label.config(text="Baud Rate deve essere un numero intero valido")
-        return
-    
-    stopbits = int(stopbits_var.get())
-    parity = parity_var.get()
-    
-    ser = serial.Serial(port, baudrate=baudrate, stopbits=stopbits, parity=parity)
+ser = None  # Variabile globale per la porta seriale
 
-    # Apri una finestra di dialogo per selezionare un file da caricare
+def open_file_dialog():
     file_path = filedialog.askopenfilename()
     if file_path:
-        try:
-            with open(file_path, 'r') as file:
-                file_content = file.read()
-                ser.write(file_content.encode())
-                result_label.config(text=f'Dati inviati via seriale: {file_content}')
-        except Exception as e:
-            result_label.config(text=f'Errore durante il caricamento e l\'invio dei dati via seriale: {str(e)}')
-        finally:
-            ser.close()
+        selected_file_path.set(file_path)
+
+def send_file():
+    global ser
+    if ser is None:
+        result_label.config(text="Errore: La porta seriale non è configurata.")
+        return
+
+    file_path = selected_file_path.get()
+    try:
+        with open(file_path, 'r') as file:
+            file_content = file.read()
+            ser.write(file_content.encode())
+            result_label.config(text=f'Dati inviati via seriale: {file_content}')
+    except Exception as e:
+        result_label.config(text=f'Errore durante l\'invio dei dati via seriale: {str(e)}')
 
 # Creazione della finestra principale
 window = tk.Tk()
 window.title("Invio dati via seriale")
 
 # Creazione dei widget per l'interfaccia utente
-port_label = tk.Label(window, text="Porta Seriale:")
-port_label.pack()
-port_entry = tk.Entry(window)
-port_entry.pack()
+selected_file_path = tk.StringVar()
+file_path_label = tk.Label(window, text="File Selezionato:")
+file_path_label.pack()
+file_path_entry = tk.Entry(window, textvariable=selected_file_path)
+file_path_entry.pack()
 
-baudrate_label = tk.Label(window, text="Baud Rate:")
-baudrate_label.pack()
-baudrate_entry = tk.Entry(window)
-baudrate_entry.pack()
-
-stopbits_label = tk.Label(window, text="Bit di Stop:")
-stopbits_label.pack()
-stopbits_var = tk.IntVar()
-stopbits_var.set(1)
-stopbits_menu = tk.OptionMenu(window, stopbits_var, 1, 1.5, 2)
-stopbits_menu.pack()
-
-parity_label = tk.Label(window, text="Parità:")
-parity_label.pack()
-parity_var = tk.StringVar()
-parity_var.set('N')
-parity_menu = tk.OptionMenu(window, parity_var, 'N', 'E', 'O', 'M', 'S')
-parity_menu.pack()
-
-select_file_button = tk.Button(window, text="Seleziona File", command=send_file)
+select_file_button = tk.Button(window, text="Seleziona File", command=open_file_dialog)
 select_file_button.pack()
+
+send_file_button = tk.Button(window, text="Invia File via Seriale", command=send_file)
+send_file_button.pack()
 
 result_label = tk.Label(window, text="")
 result_label.pack()
+
+# Configurazione della porta seriale (inserisci i tuoi parametri)
+port = "COM1"  # Inserisci il nome della porta seriale corretta
+baudrate = 9600  # Inserisci il baud rate corretto
+try:
+    ser = serial.Serial(port, baudrate=baudrate)
+except serial.SerialException as e:
+    result_label.config(text=f'Errore durante la configurazione della porta seriale: {str(e)}')
 
 # Avvia l'applicazione
 window.mainloop()

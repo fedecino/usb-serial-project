@@ -17,7 +17,7 @@ def send_file():
         result_label.config(text="Baud Rate deve essere un numero intero valido")
         return
     
-    stopbits = stopbits_var.get()
+    stopbits = int(stopbits_var.get())
     parity = parity_var.get()
     
     ser = serial.Serial(port, baudrate=baudrate, stopbits=stopbits, parity=parity)
@@ -52,9 +52,9 @@ baudrate_entry.pack()
 
 stopbits_label = tk.Label(window, text="Bit di Stop:")
 stopbits_label.pack()
-stopbits_var = tk.StringVar()
-stopbits_var.set('1')
-stopbits_menu = tk.OptionMenu(window, stopbits_var, '1', '1.5', '2')
+stopbits_var = tk.IntVar()
+stopbits_var.set(1)
+stopbits_menu = tk.OptionMenu(window, stopbits_var, 1, 1.5, 2)
 stopbits_menu.pack()
 
 parity_label = tk.Label(window, text="Parità:")

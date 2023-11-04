@@ -5,7 +5,18 @@ from tkinter import filedialog
 def send_file():
     # Ottieni i parametri della porta seriale dalla GUI
     port = port_entry.get()
-    baudrate = int(baudrate_entry.get())
+    
+    baudrate_str = baudrate_entry.get()
+    if not baudrate_str:
+        result_label.config(text="Inserire un valore di Baud Rate valido")
+        return
+    
+    try:
+        baudrate = int(baudrate_str)
+    except ValueError:
+        result_label.config(text="Baud Rate deve essere un numero intero valido")
+        return
+    
     stopbits = stopbits_var.get()
     parity = parity_var.get()
     
